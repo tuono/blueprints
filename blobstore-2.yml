@@ -1,0 +1,20 @@
+# 
+# Copyright (C) 2019 Tuono, Inc.
+# All Rights Reserved
+#
+---
+variables:
+  country:
+    default: USA
+    type: string
+location:
+  region:
+    my-region:
+      country: (( country ))
+      area: west
+  folder:
+    confab-blobstore-mrw:
+      region: my-region
+storage:
+  blobstore:
+    logfiles: {}
