@@ -1,0 +1,111 @@
+#
+# Copyright (C) 2019 Tuono, Inc.
+# All Rights Reserved
+#
+# This is an example confab blueprint that creates and environment with:
+#
+# - 1 network
+# - 2 subnets, one public and one private
+# - 1 firewall, allowing SSH access, applied to the public NIC
+# - VM with:
+#   - cores as specified
+#   - memory as specific
+#   - starting from the official Ubuntu Server, 18.04 LTS (Bionic) image
+#   - connected to the public network, using dynamic addressing
+#   - connected to the private network, having 2 static addresses in it
+# 
+# public_key: public ssh key
+#
+---
+
+location:
+  region:
+    intent_region:
+      country: USA
+      area: northwest
+  folder:
+    intent_folder:
+      region: intent_region
+      
+networking:
+  network:
+    intent_vnet:
+      range:
+        - 10.50.0.0/16
+        - 10.150.0.0/16
+      public: true
+      enable_ipv6: true
+      default_policy:
+        inbound: allow
+
+  subnet:
+    public_subnet:
+      range: 10.50.0.0/16
+      network: intent_vnet
+      public: true
+      enable_ipv6: true
+      firewall: inbound-core-access
+      zone: 3
+    private_subnet:
+      range: 10.150.0.0/16
+      network: intent_vnet
+      enable_ipv6: true
+      isolated: false
+      zone: 3
+      
+  protocol:
+    ssh:
+      ports:
+        - port: 22
+          proto: tcp
+    http:
+      ports:
+        - port: 80
+          proto: tcp
+        
+  firewall:
+    inbound-core-access:
+      rules:
+        - protocols:
+            - http
+            - ssh
+          to: members
+
+compute:
+  image:
+    bionic:
+      publisher: Canonical
+      product: UbuntuServer
+      sku: 18.04-LTS
+      venue:
+        aws:
+          image_id: ami-0a7d051a1c4b54f65
+
+  vm:
+    webserver:
+      admin_username: adminuser
+      cores: 2
+      memory: 4 GB
+      disks:
+        data:
+          size: 1000GB
+          os: linux
+      image: bionic
+      nics:
+        external_nic:
+          ips:
+            - private:
+                type: dynamic
+              public:
+                type: static
+          firewall: inbound-core-access
+          subnet: public_subnet
+        internal_nic:
+          ips:
+            - private:
+                ip: 10.150.0.11
+                type: static
+          subnet: private_subnet
+      ssh_public_key: {{ public_key }}
+      tags:
+        wicked: cool
