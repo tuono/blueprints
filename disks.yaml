@@ -1,0 +1,29 @@
+---
+location:
+  region:
+    nw:
+      country: USA
+      area: northwest
+  folder:
+    tuono-disks:
+      region: nw
+
+storage:
+  disk:
+    cold:
+      size: 1tb
+      type: cold
+    hdd:
+      size: 500gb
+      type: hdd
+    ssd:
+      size: 128gb
+      type: ssd
+    premium:
+      size: 64gb
+      type: premium
+    ultra:
+      size: 32gb
+      type: ultra
+      iops: 1000
+      throughput: 50 MB/s

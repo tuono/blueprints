@@ -1,0 +1,93 @@
+---
+variables:
+  admin_username:
+    description: The administrative account username to use for SSH access.
+    type: string
+    default: adminuser
+  admin_public_key:
+    description: The OpenSSH Public Key to use for SSH access.
+    type: string
+
+location:
+  region:
+    my-region:
+      country: USA
+      area: northwest
+  folder:
+    tuono-vm-linux:
+      region: my-region
+
+networking:
+  network:
+    testing:
+      range: 10.0.0.0/16
+      scope: public
+  subnet:
+    public:
+      range: 10.0.0.0/24
+      network: testing
+      firewall: vm-linux-access
+      scope: public
+  protocol:
+    http:
+      ports:
+        - port: 80
+          proto: tcp
+    ssh:
+      ports:
+        - port: 22
+          proto: tcp
+  firewall:
+    vm-linux-access:
+      rules:
+        - protocols:
+            - http
+            - ssh
+          to: self
+
+compute:
+  image:
+    bionic:
+      publisher: Canonical
+      product: UbuntuServer
+      sku: 18.04-LTS
+      venue:
+        aws:
+          # if provisioning fails due to image not found, go to:
+          # https://cloud-images.ubuntu.com/locator/ec2/
+          # and search for "bionic amd64 ebs" and also add your AWS zone name like "us-west-2"
+          image_id: ami-04bb0cc469b2b81cc
+  vm:
+    example:
+      cores: 1
+      memory: 3 GB
+      image: bionic
+      nics:
+        external:
+          ips:
+            - private:
+                type: dynamic
+              public:
+                type: static
+          firewall: vm-linux-access
+          subnet: public
+      tags:
+        wicked: cool
+      configure:
+        admin:
+          username: (( admin_username ))
+          public_key: (( admin_public_key ))
+        userdata:
+          type: cloud-init
+          content: |
+            #cloud-config
+            package_upgrade: false
+            packages:
+              - nginx
+            users:
+              - name: (( admin_username ))
+                groups:
+                  - sudo
+                sudo: ALL=(ALL) NOPASSWD:ALL
+                ssh_authorized_keys:
+                  - (( admin_public_key ))
