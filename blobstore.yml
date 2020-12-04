@@ -9,7 +9,7 @@ location:
       country: USA
       area: west
   folder:
-    confab-blobstore-mrw:
+    confab-blobstore:
       region: my-region
 storage:
   blobstore:
