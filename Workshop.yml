@@ -1,0 +1,118 @@
+# Tuono IaC Workshop
+# Module 1 designates a cloud region to deploy to and creates a Resource Group
+#
+---
+location:
+  region:
+    workshop-region:
+      aws: us-west-2
+      azure: westus2
+  folder:
+    (( resource_group)):
+      region: workshop-region
+      
+      
+# Module 2 creates a basic network
+networking:
+  network:
+    vnet-walkthrough:
+      range: 10.0.0.0/16
+      scope: public
+
+  subnet:
+    subnet-walkthrough:
+      range: 10.0.0.0/24
+      network: vnet-walkthrough
+      scope: public
+      firewall: fw-external-access  # Module 3 adds a Firewall to the subnet and marks it public
+
+
+# Module 3 demonstrates securing a subnet and the groundwork for security groups and NACLs
+  protocol:
+    web-server:
+      ports:
+        - port: 22
+          proto: tcp
+        - port: 80
+          proto: tcp
+    ping:
+      ports:
+        - proto: icmp
+             
+  firewall:
+    fw-external-access:
+      rules:
+        - protocols: web-server
+          to: self
+        - protocols: ping
+          to: self
+          
+
+# Module 4 demonstrates Image selection in cloud providers
+compute:
+  image:
+    bionic:
+      publisher: Canonical
+      product: UbuntuServer
+      sku: 18.04-LTS
+      venue:
+        aws:
+          # if provisioning fails due to image not found, go to:
+          # https://cloud-images.ubuntu.com/locator/ec2/
+          # and search for "bionic amd64 ebs" and also add your AWS zone name like "us-west-2"
+          image_id: ami-04bb0cc469b2b81cc
+          
+          
+# Module 5 demonstrates the creation of VM Instance and user data
+  vm:
+    webserver-var:
+      cores: 1
+      memory: 1 GB
+      image: bionic
+      nics:
+        external:
+          ips:
+            - private:
+                type: dynamic
+              public:
+                type: static
+          firewall: fw-external-access
+          subnet: subnet-walkthrough
+      configure:
+        admin:
+          username: (( admin_username ))
+          public_key: (( admin_public_key ))
+        userdata:
+          type: cloud-init
+          content: |
+            #cloud-config
+            package_upgrade: false
+            packages:
+              - nginx
+            users:
+              - name: (( admin_username ))
+                groups:
+                  - sudo
+                sudo: ALL=(ALL) NOPASSWD:ALL
+                ssh_authorized_keys:
+                  - (( admin_public_key ))
+            runcmd:
+              - sudo su 
+              - echo '(( your_caption ))' > /var/www/html/index.nginx-debian.html
+
+variables:
+  admin_username:
+    description: The username for the administrative user.
+    type: string
+    default: adminuser
+  admin_public_key:
+    description: The OpenSSH Public Key to use for administrative access.
+    type: string
+    default: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDu= dummy_key@tuono.com
+  your_caption:
+    description: Web server message
+    type: string
+    default: "Congratulations on configuring a web server!"
+  resource_group:
+    description: Name of your dedicated Resource Group
+    type: string

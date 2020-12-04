@@ -1,0 +1,13 @@
+#
+# This is an example blueprint that demonstrates Image selection in cloud providers
+#
+---
+compute:
+  image:
+    bionic:
+      publisher: Canonical
+      product: UbuntuServer
+      sku: 18.04-LTS
+      venue:
+        aws:
+          image_id: ami-04bb0cc469b2b81cc
