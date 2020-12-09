@@ -13,4 +13,4 @@ networking:
       range: 10.0.0.0/24
       network: vnet-walkthrough
       scope: public
-      firewall: fw-external-access​  # Module 3 defines the firewall
+      firewall: fw-external-access # Module 3 defines the firewall
