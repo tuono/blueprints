@@ -11,7 +11,6 @@ location:
       azure: westus2
   folder:
     (( resource_group )):
-      name: (( resource_group ))
       region: workshop-region
 
 
@@ -75,8 +74,6 @@ compute:
       # disks:
       #   data:
       #     size: 128 GB
-      #     tags:
-      #       disk-label: my-disks
       configure:
         admin:
           username: (( admin_username ))
@@ -109,9 +106,6 @@ variables:
     description: The OpenSSH Public Key to use for administrative access.
     type: string
     default: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDu= dummy_key@tuono.com
-  # admin_public_key:
-  #   description: The OpenSSH Public Key to use for administrative access.
-  #   type: secret
   your_caption:
     description: Web server message
     type: string
