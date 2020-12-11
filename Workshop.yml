@@ -1,5 +1,6 @@
 #
 # Tuono IaC Workshop
+#
 # Module 1 designates a cloud region to deploy to and creates a Resource Group
 #
 ---
@@ -9,11 +10,11 @@ location:
       aws: us-west-2
       azure: westus2
   folder:
-    (( resource_group)):
+    (( resource_group )):
+      name: (( resource_group ))
       region: workshop-region
-      
-      
-# Module 2 creates a basic network
+
+
 networking:
   network:
     vnet-walkthrough:
@@ -25,10 +26,8 @@ networking:
       range: 10.0.0.0/24
       network: vnet-walkthrough
       scope: public
-      firewall: fw-external-access  # Module 3 adds a Firewall to the subnet and marks it public
+      firewall: fw-external-access
 
-
-# Module 3 demonstrates securing a subnet and the groundwork for security groups and NACLs
   protocol:
     web-server:
       ports:
@@ -39,7 +38,7 @@ networking:
     ping:
       ports:
         - proto: icmp
-             
+
   firewall:
     fw-external-access:
       rules:
@@ -47,9 +46,8 @@ networking:
           to: self
         - protocols: ping
           to: self
-          
 
-# Module 4 demonstrates Image selection in cloud providers
+
 compute:
   image:
     bionic:
@@ -58,13 +56,8 @@ compute:
       sku: 18.04-LTS
       venue:
         aws:
-          # if provisioning fails due to image not found, go to:
-          # https://cloud-images.ubuntu.com/locator/ec2/
-          # and search for "bionic amd64 ebs" and also add your AWS zone name like "us-west-2"
           image_id: ami-04bb0cc469b2b81cc
-          
-          
-# Module 5 demonstrates the creation of VM Instance and user data
+
   vm:
     webserver-var:
       cores: 1
@@ -79,6 +72,11 @@ compute:
                 type: static
           firewall: fw-external-access
           subnet: subnet-walkthrough
+      # disks:
+      #   data:
+      #     size: 128 GB
+      #     tags:
+      #       disk-label: my-disks
       configure:
         admin:
           username: (( admin_username ))
@@ -98,8 +96,9 @@ compute:
                 ssh_authorized_keys:
                   - (( admin_public_key ))
             runcmd:
-              - sudo su 
+              - sudo su
               - echo '(( your_caption ))' > /var/www/html/index.nginx-debian.html
+
 
 variables:
   admin_username:
@@ -110,6 +109,9 @@ variables:
     description: The OpenSSH Public Key to use for administrative access.
     type: string
     default: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDu= dummy_key@tuono.com
+  # admin_public_key:
+  #   description: The OpenSSH Public Key to use for administrative access.
+  #   type: secret
   your_caption:
     description: Web server message
     type: string
