@@ -1,8 +1,6 @@
 #
 # Tuono IaC Workshop
 #
-# Module 1 designates a cloud region to deploy to and creates a Resource Group
-#
 ---
 location:
   region:
