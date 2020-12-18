@@ -1,15 +1,16 @@
 #
-# Tuono IaC Workshop
+# Tuono Hands On Lab 
+# HOL-100
 #
 ---
 location:
   region:
-    workshop-region:
+    hands-on-lab-region:
       aws: us-west-2
       azure: westus2
   folder:
     (( resource_group )):
-      region: workshop-region
+      region: hands-on-lab-region
 
 
 networking:

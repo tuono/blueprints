@@ -1,5 +1,6 @@
 #
-# Tuono IaC Workshop
+# Tuono Hands On Lab
+# HOL-106
 # This is an example blueprint which demonstrates the
 # creation of a Docker host with a public ip address.
 #
