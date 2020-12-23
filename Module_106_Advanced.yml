@@ -50,8 +50,8 @@ presets:
 location:
   region:
     datacenter:
-      aws: us-west-2
-      azure: westus2
+      aws: eu-west-1
+      azure: northeurope
   folder:
     docker:
       region: datacenter
