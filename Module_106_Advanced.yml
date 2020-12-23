@@ -20,7 +20,8 @@ variables:
     default: adminuser
   container_password:
     description: The password for the Docker container
-    type: secret
+    type: string
+    default: Password123!
   admin_public_key:
     description: The OpenSSH Public Key to use for administrative access.
     type: string
