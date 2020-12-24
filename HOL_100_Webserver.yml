@@ -57,7 +57,7 @@ compute:
           image_id: ami-04bb0cc469b2b81cc
 
   vm:
-    webserver-var:
+    webserver:
       cores: 1
       memory: 1 GB
       image: bionic
