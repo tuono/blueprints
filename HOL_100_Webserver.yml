@@ -15,14 +15,14 @@ location:
 
 networking:
   network:
-    vnet-walkthrough:
+    vnet-(( resource_group )):
       range: 10.0.0.0/16
       scope: public
 
   subnet:
     subnet-walkthrough:
       range: 10.0.0.0/24
-      network: vnet-walkthrough
+      network: vnet-(( resource_group ))
       scope: public
       firewall: fw-external-access
 
