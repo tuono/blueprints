@@ -1,0 +1,27 @@
+---
+name: vm_windows
+concepts:
+  - IIS
+  - Public IP
+  - RDP
+  - Remote Desktop
+  - Secrets
+  - Userdata
+  - Variables
+  - Virtual Machine
+  - Windows
+description: >
+  Creates a Windows Server 2019 virtual machine and configures it
+  with to run IIS following a public example published by Microsoft.
+  This virtual machine has a public ip address and allows ports 80 and
+  3389 inbound.  You must provide an ``admin_password`` for Azure and
+  an ``admin_public_key`` for AWS.
+version: "1.1"
+release_notes:
+  "1.0":
+    - Initial release.
+  "1.1":
+    - Changed the ``admin_password`` to a `secret` variable.
+venues:
+  - aws
+  - azure

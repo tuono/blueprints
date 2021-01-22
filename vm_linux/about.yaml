@@ -1,0 +1,23 @@
+---
+name: vm_linux
+concepts:
+  - Linux
+  - Nginx
+  - Public IP
+  - SSH
+  - Userdata
+  - Variables
+  - Virtual Machine
+description: >
+  Creates an Ubuntu Bionic (linux) virtual machine and configures it
+  with userdata to run the nginx server.  This virtual machine
+  has a public ip address and allows ports 22 and 80 inbound.
+  You must provide an ``admin_public_key`` variable for
+  remote administration by SSH.
+version: "1.0"
+release_notes:
+  "1.0":
+    - Initial release.
+venues:
+  - aws
+  - azure
