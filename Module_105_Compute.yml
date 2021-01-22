@@ -1,5 +1,6 @@
 #
-# Tuono IaC Workshop
+# Tuono Hands-On Lab
+# HOL-105
 # This is an example blueprint that demonstrates the creation of VM Instance
 # and user data
 #
@@ -20,7 +21,7 @@ variables:
 
 compute:
   vm:
-    webserver-var:
+    webserver:
       cores: 1
       memory: 1 GB
       image: bionic

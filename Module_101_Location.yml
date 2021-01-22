@@ -1,16 +1,17 @@
 #
-# Tuono IaC Workshop
+# Tuono Hands-On Lab
+# HOL-101
 # Designates a cloud region and creates a Resource Group
 #
 ---
 location:
   region:
-    workshop-region:
+    hands-on-lab-region:
       aws: us-west-2
       azure: westus2
   folder:
     (( resource_group)):
-      region: workshop-region
+      region: hands-on-lab-region
       
 variables:
   resource_group:

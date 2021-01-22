@@ -1,5 +1,6 @@
 #
-# Tuono IaC Workshop
+# Tuono Hands-On Lab
+# HOL-106
 # This is an example blueprint which demonstrates the
 # creation of a Docker host with a public ip address.
 #
@@ -19,15 +20,18 @@ variables:
     default: adminuser
   container_password:
     description: The password for the Docker container
-    type: secret
+    type: string
+    default: Password123!
   admin_public_key:
     description: The OpenSSH Public Key to use for administrative access.
     type: string
+    default: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDu= dummy_key@tuono.com
   num_instances:
     description: Count of number of instances
     type: integer
     min: 1
     max: 5
+    default: 1
   number_of_cores:
     type: integer
     preset: true
@@ -61,7 +65,7 @@ networking:
   subnet:
     docker_subnet:
       range: 10.0.0.0/24
-      network: testing
+      network: docker_network
       firewall: only-secure-access
       scope: public
   protocol:
@@ -107,7 +111,7 @@ compute:
               public:
                 type: static
           firewall: only-secure-access
-          subnet: public
+          subnet: docker_subnet
       tags:
         wicked: cool
 
