@@ -1,0 +1,17 @@
+#
+# Tuono Hands-On Lab
+# HOL-102
+# This is an example blueprint that creates a basic network
+#
+---
+networking:
+  network:
+    vnet-walkthrough:
+      range: 10.0.0.0/16
+      scope: public
+  subnet:
+    subnet-walkthrough:
+      range: 10.0.0.0/24
+      network: vnet-walkthrough
+      scope: public
+      firewall: fw-external-access # Module 3 defines the firewall

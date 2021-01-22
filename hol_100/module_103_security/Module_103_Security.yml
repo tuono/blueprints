@@ -1,0 +1,29 @@
+#
+# Tuono Hands-On Lab
+# HOL-103
+# This is an example blueprint that demonstrates securing a subnet 
+# and the groundwork for security groups and NACLs
+#
+---
+networking:
+# Module 3 Protocols
+  protocol:
+    web-server:
+      ports:
+        - port: 22
+          proto: tcp
+        - port: 80
+          proto: tcp
+    ping:
+      ports:
+        - proto: icmp
+
+        
+# Module 3 adds a Firewall using a protocol
+  firewall:
+    fw-external-access:
+      rules:
+        - protocols: web-server
+          to: self
+        - protocols: ping
+          to: self
