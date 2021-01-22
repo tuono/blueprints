@@ -1,7 +1,6 @@
 #
 # Tuono IaC Workshop
 #
-# Module 1 designates a cloud region to deploy to and creates a Resource Group
 #
 ---
 location:
@@ -71,9 +70,9 @@ compute:
                 type: static
           firewall: fw-external-access
           subnet: subnet-walkthrough
-      # disks:
-      #   data:
-      #     size: 128 GB
+      #disks:
+      #  data:
+      #    size: 128 GB
       configure:
         admin:
           username: (( admin_username ))

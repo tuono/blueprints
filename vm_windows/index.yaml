@@ -1,0 +1,104 @@
+---
+variables:
+  admin_username:
+    description: >-
+      The administrative account username to use for RDP access.  Note this only
+      works on Azure; on AWS this variable is ignored and `Administrator` is used.
+      This is an issue we are aware of and plan to resolve.
+    type: string
+    default: adminuser
+  admin_password:
+    description: >-
+      The administrative account password to use for RDP access.  Note this only
+      works on Azure; on AWS this variable is ignored, as the EC2Launch service
+      generates a random password that you must acquire through the AWS console.
+      This is an issue we are aware of and plan to resolve.
+    type: secret
+  admin_public_key:
+    description: >-
+      The OpenSSH Public Key used to protect access to the randomly generated
+      Administrative password on AWS.  This is ignored on Azure.
+      This is an issue we are aware of and plan to resolve.
+    type: string
+
+location:
+  region:
+    my-region:
+      country: USA
+      area: northwest
+  folder:
+    tuono-vm-windows:
+      region: my-region
+
+networking:
+  network:
+    testing:
+      range: 10.0.0.0/16
+      scope: public
+  subnet:
+    public:
+      range: 10.0.0.0/24
+      network: testing
+      firewall: vm-windows-access
+      scope: public
+  protocol:
+    http:
+      ports:
+        - port: 80
+          proto: tcp
+    rdp:
+      ports:
+        - port: 3389
+          proto: tcp
+  firewall:
+    vm-windows-access:
+      rules:
+        - protocols:
+            - http
+            - rdp
+          to: self
+
+compute:
+  image:
+    ws2019:
+      publisher: MicrosoftWindowsServer
+      product: WindowsServer
+      sku: 2019-Datacenter
+      venue:
+        aws:
+          # The image_id is region specific.
+          # See https://docs.aws.amazon.com/AWSEC2/latest/WindowsGuide/finding-an-ami.html#finding-an-ami-aws-cli
+          # See https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/finding-an-ami.html
+          image_id: ami-00f3936c0e672596e
+  vm:
+    example:
+      cores: 1
+      memory: 3 GB
+      image: ws2019
+      nics:
+        external:
+          ips:
+            - private:
+                type: dynamic
+              public:
+                type: static
+          firewall: vm-windows-access
+          subnet: public
+      tags:
+        wicked: awesome
+      configure:
+        admin:
+          username: (( admin_username ))
+          password: (( admin_password ))
+          public_key: (( admin_public_key ))
+        userdata:
+          type: powershell
+          content: |
+            Add-WindowsFeature Web-Server
+            Add-Content -Path "C:\inetpub\wwwroot\Default.htm" -Value $($env:computername)
+            New-Item -Force -ItemType directory -Path "C:\inetpub\wwwroot\images"
+            New-Item -Force -ItemType directory -Path "C:\inetpub\wwwroot\video"
+            $imagevalue = "Images: " + $($env:computername)
+            Add-Content -Path "C:\inetpub\wwwroot\images\test.htm" -Value $imagevalue
+            $videovalue = "Video: " + $($env:computername)
+            Add-Content -Path "C:\inetpub\wwwroot\video\test.htm" -Value $videovalue
