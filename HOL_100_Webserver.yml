@@ -1,11 +1,6 @@
 #
-<<<<<<< HEAD:Workshop.yml
-# Tuono IaC Workshop
-#
-=======
-# Tuono Hands-On Lab 
+# Tuono Hands-On Lab
 # HOL-100
->>>>>>> b482f54919a8dc41d6ed4561c5f13e2537232413:HOL_100_Webserver.yml
 #
 ---
 location:
@@ -15,11 +10,7 @@ location:
       azure: westus2
   folder:
     (( resource_group )):
-<<<<<<< HEAD:Workshop.yml
-      region: workshop-region
-=======
       region: hands-on-lab-region
->>>>>>> b482f54919a8dc41d6ed4561c5f13e2537232413:HOL_100_Webserver.yml
 
 
 networking:
@@ -79,15 +70,9 @@ compute:
                 type: static
           firewall: fw-external-access
           subnet: subnet-walkthrough
-<<<<<<< HEAD:Workshop.yml
       #disks:
       #  data:
       #    size: 128 GB
-=======
-      # disks:
-      #   data:
-      #     size: 128 GB
->>>>>>> b482f54919a8dc41d6ed4561c5f13e2537232413:HOL_100_Webserver.yml
       configure:
         admin:
           username: (( admin_username ))
