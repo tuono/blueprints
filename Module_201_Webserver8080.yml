@@ -1,0 +1,114 @@
+#
+# Tuono Hands-On Lab 
+# HOL-201
+#
+---
+location:
+  region:
+    hands-on-lab-region:
+      aws: us-west-2
+      azure: westus2
+  folder:
+    (( resource_group )):
+      region: hands-on-lab-region
+
+
+networking:
+  network:
+    vnet-walkthrough:
+      range: 10.0.0.0/16
+      scope: public
+
+  subnet:
+    subnet-walkthrough:
+      range: 10.0.0.0/24
+      network: vnet-walkthrough
+      scope: public
+      firewall: fw-external-access
+
+  protocol:
+    web-server:
+      ports:
+        - port: 22
+          proto: tcp
+          
+  service:
+    internal-http:    # traffic for the web service internally
+      port: 8080
+      protocol: http 
+
+  firewall:
+    fw-external-access:
+      rules:
+        - protocols: web-server
+          to: self
+        - services : internal-http
+          to: self
+        
+compute:
+  image:
+    bionic:
+      publisher: Canonical
+      product: UbuntuServer
+      sku: 18.04-LTS
+      venue:
+        aws:
+          image_id: ami-04bb0cc469b2b81cc
+
+  vm:
+    webserver-(( count )):
+      count: 2
+      cores: 1
+      memory: 1 GB
+      image: bionic
+      nics:
+        external:
+          ips:
+            - private:
+                type: dynamic
+              public:
+                type: dynamic
+          firewall: fw-external-access
+          subnet: subnet-walkthrough
+          provides: internal-http
+      configure:
+        admin:
+          username: (( admin_username ))
+          public_key: (( admin_public_key ))
+        userdata:
+          type: cloud-init
+          content: |
+            #cloud-config
+            package_upgrade: false
+            packages:
+              - nginx
+            users:
+              - name: (( admin_username ))
+                groups:
+                  - sudo
+                sudo: ALL=(ALL) NOPASSWD:ALL
+                ssh_authorized_keys:
+                  - (( admin_public_key ))
+            runcmd:
+              - sudo su
+              - echo '(( your_caption ))-webserver-((count))' > /var/www/html/index.nginx-debian.html
+              - sed -i 's/listen 80 default_server;/listen 8080 default_server;/' /etc/nginx/sites-enabled/default
+              - sed -i 's/listen \[\:\:\]\:80 default_server;/listen \[\:\:\]\:8080 default_server;/' /etc/nginx/sites-enabled/default
+              - systemctl restart nginx
+
+variables:
+  admin_username:
+    description: The username for the administrative user.
+    type: string
+    default: adminuser
+  admin_public_key:
+    description: The OpenSSH Public Key to use for administrative access.
+    type: string
+    default: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDu= dummy_key@tuono.com
+  your_caption:
+    description: Web server message
+    type: string
+    default: "Congratulations on configuring a web server!"
+  resource_group:
+    description: Name of your dedicated Resource Group
+    type: string

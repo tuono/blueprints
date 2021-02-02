@@ -1,0 +1,19 @@
+#
+# Tuono Hands-On Lab 
+# HOL-202
+#
+---
+networking:
+
+  service:
+    external-http:
+      port: 80
+      protocol: http
+ 
+  balancer:
+    hol-public-balancer:
+      network: vnet-walkthrough
+      scope: public
+      routes:
+       - from: external-http
+         to: internal-http
