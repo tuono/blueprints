@@ -1,0 +1,180 @@
+#
+# Tuono Hands-On Lab
+# HOL-106
+# This is an example blueprint which demonstrates the
+# creation of a Docker host with a public ip address.
+#
+# The machine can be accessed via:
+#
+# # ssh <admin_username>@<ip>
+#
+# And the Docker machine can be accessed via;
+#
+# # ssh <admin_username>@<ip> -p 8080
+#
+---
+variables:
+  admin_username:
+    description: The username for the administrative user.
+    type: string
+    default: adminuser
+  container_password:
+    description: The password for the Docker container
+    type: string
+    default: Password123!
+  admin_public_key:
+    description: The OpenSSH Public Key to use for administrative access.
+    type: string
+    default: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDu= dummy_key@tuono.com
+  num_instances:
+    description: Count of number of instances
+    type: integer
+    min: 1
+    max: 5
+    default: 1
+  number_of_cores:
+    type: integer
+    preset: true
+  memory_in_gb:
+    type: integer
+    preset: true
+
+presets:
+  venue:
+    azure:
+      number_of_cores: 1
+      memory_in_gb: 2
+    aws:
+      number_of_cores: 1
+      memory_in_gb: 1
+  
+location:
+  region:
+    datacenter:
+      aws: eu-west-1
+      azure: northeurope
+  folder:
+    docker:
+      region: datacenter
+
+networking:
+  network:
+    docker_network:
+      range: 10.0.0.0/16
+      scope: public
+  subnet:
+    docker_subnet:
+      range: 10.0.0.0/24
+      network: docker_network
+      firewall: only-secure-access
+      scope: public
+  protocol:
+    secure:
+      ports:
+        - port: 22
+          proto: tcp
+        - port: 443
+          proto: tcp
+        - port: 8080
+          proto: tcp
+  firewall:
+    only-secure-access:
+      rules:
+        - protocols: secure
+          to: self
+
+compute:
+  image:
+    bionic:
+      publisher: Canonical
+      product: UbuntuServer
+      sku: 18.04-LTS
+      venue:
+        aws:
+          image_id: ami-06868ad5a3642e4d7
+  vm:
+    docker-host:
+      count: ((num_instances))
+      cores: ((number_of_cores))
+      memory: ((memory_in_gb)) GB
+      image: bionic
+      disks:
+        data:
+          size: 64 GB
+          tags:
+            tag: base_disk
+      nics:
+        external:
+          ips:
+            - private:
+                type: dynamic
+              public:
+                type: static
+          firewall: only-secure-access
+          subnet: docker_subnet
+      tags:
+        wicked: cool
+
+
+      configure:
+        admin:
+          username: ((admin_username))
+          public_key: ((admin_public_key))
+
+        userdata:
+          type: shell
+          content: |
+            #!/bin/sh
+
+            ## Configure admin_username on the host machine
+            userid=$(id -u ((admin_username)))
+            if [ -z "$userid" ]; then
+                set -e
+                adduser --gecos "" --disabled-password ((admin_username))
+                cd ~((admin_username))
+                mkdir .ssh
+                chmod 700 .ssh
+                echo "((admin_public_key))" > .ssh/authorized_keys
+                chmod 600 .ssh/authorized_keys
+                chown -R ((admin_username)).((admin_username)) .ssh
+                usermod -aG sudo ((admin_username))
+                echo "((admin_username))   ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+                set +e
+            fi
+
+            ## Update the repositories and upgrade
+            sudo apt update
+            sudo apt upgrade -y
+
+            ## Install and configure Docker
+            sudo apt install docker.io -y
+            sudo usermod -aG docker (( admin_username ))
+            sudo systemctl enable --now docker
+
+            ## Create a directory to store the Dockerfile
+            mkdir dockerbuild
+
+            ## Create Dockerfile and do some bootsrapping on the container machine
+            echo "FROM ubuntu:20.04
+            
+            # Install the required dependencies
+            RUN apt-get update && apt-get install -y openssh-server
+            RUN mkdir /var/run/sshd
+            
+            # Add the admin_username
+            RUN useradd ((admin_username))
+            RUN echo '((admin_username)):((container_password))' | chpasswd
+            
+            # Fix some ENV issues
+            ENV NOTVISIBLE='in users profile'
+            RUN echo 'export VISIBLE=now' >> /etc/profile
+            
+            # Open up port 22
+            EXPOSE 22
+            
+            # This is a workaround to start (and keep up) SSHd
+            CMD service ssh start && while true; do sleep 3000; done" > dockerbuild/dockerfile
+
+            ## Build and run the Docker image
+            docker build -t dockerfile dockerbuild
+            docker run -d -p 8080:22 -t -i dockerfile

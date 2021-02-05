@@ -1,0 +1,57 @@
+#
+# Tuono Hands-On Lab
+# HOL-105
+# This is an example blueprint that demonstrates the creation of VM Instance
+# and user data
+#
+---
+variables:
+  admin_username:
+    description: The username for the administrative user.
+    type: string
+    default: adminuser
+  admin_public_key:
+    description: The OpenSSH Public Key to use for administrative access.
+    type: string
+    default: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDummyDu= dummy_key@tuono.com
+  your_caption:
+    description: Name of webserver
+    type: string
+    default: "Congratulations on configuring a web server!"
+
+compute:
+  vm:
+    webserver:
+      cores: 1
+      memory: 1 GB
+      image: bionic
+      nics:
+        external:
+          ips:
+            - private:
+                type: dynamic
+              public:
+                type: static
+          firewall: fw-external-access
+          subnet: subnet-walkthrough
+      configure:
+        admin:
+          username: (( admin_username ))
+          public_key: (( admin_public_key ))
+        userdata:
+          type: cloud-init
+          content: |
+            #cloud-config
+            package_upgrade: false
+            packages:
+              - nginx
+            users:
+              - name: (( admin_username ))
+                groups:
+                  - sudo
+                sudo: ALL=(ALL) NOPASSWD:ALL
+                ssh_authorized_keys:
+                  - (( admin_public_key ))
+            runcmd:
+              - sudo su 
+              - echo '(( your_caption ))' > /var/www/html/index.nginx-debian.html
