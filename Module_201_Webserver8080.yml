@@ -92,6 +92,7 @@ compute:
             runcmd:
               - sudo su
               - echo '(( your_caption ))<br><br>webserver-((count))' > /var/www/html/index.nginx-debian.html
+              - echo '(( your_caption ))-webserver-((count))' > /var/www/html/index.nginx-debian.html
               - sed -i 's/listen 80 default_server;/listen 8080 default_server;/' /etc/nginx/sites-enabled/default
               - sed -i 's/listen \[\:\:\]\:80 default_server;/listen \[\:\:\]\:8080 default_server;/' /etc/nginx/sites-enabled/default
               - systemctl restart nginx
